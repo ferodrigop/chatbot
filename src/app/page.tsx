@@ -8,6 +8,7 @@ import { DefaultChatTransport } from "ai";
 import { useState, useRef, useEffect } from "react";
 import Message from "./components/Messages";
 import Header from "./components/Header";
+import ConversationSidebar from "./components/ConversationSidebar";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
@@ -15,6 +16,7 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
   
@@ -54,6 +56,24 @@ export default function Home() {
     setInput("");
   };
 
+  const handleConversationSelect = async (id: string) => {
+    setConversationId(id);
+    setSidebarOpen(false); // Close sidebar on mobile after selection
+    
+    // Load messages for this conversation
+    const res = await fetch(`/api/conversations/${id}/messages`);
+    const data = await res.json();
+    
+    // Convert database messages to UI messages format
+    const uiMessages = data.messages.map((msg: any) => ({
+      id: msg.id,
+      role: msg.role,
+      parts: [{ type: 'text', text: msg.content }],
+    }));
+    
+    setMessages(uiMessages);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -87,48 +107,57 @@ export default function Home() {
   return (
     <main className="fixed h-full w-full bg-muted flex flex-col">
       <Header user={user} onNewChat={handleNewChat} />
-      <div className="container mx-auto h-full max-w-4xl flex flex-col py-8">
-        <div className="flex-1 overflow-y-auto">
-          {messages.length === 0 && (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
-              <div className="text-center">
-                <h2 className="text-2xl font-semibold mb-2">Start a conversation</h2>
-                <p>Ask me anything!</p>
+      <div className="flex flex-1 overflow-hidden">
+        <ConversationSidebar
+          currentConversationId={conversationId}
+          onConversationSelect={handleConversationSelect}
+          onNewChat={handleNewChat}
+          isOpen={sidebarOpen}
+          onToggle={() => setSidebarOpen(!sidebarOpen)}
+        />
+        <div className="flex-1 flex flex-col container mx-auto max-w-4xl py-8">
+          <div className="flex-1 overflow-y-auto">
+              {messages.length === 0 && (
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                <div className="text-center">
+                  <h2 className="text-2xl font-semibold mb-2">Start a conversation</h2>
+                  <p>Ask me anything!</p>
+                </div>
               </div>
-            </div>
-          )}
-          {messages.map((message) => (
-            <Message key={message.id} message={message} />
-          ))}
-          {status === 'submitted' && (
-            <div className="flex items-center gap-2 p-6 text-muted-foreground">
-              <Loader2 className="animate-spin" size={16} />
-              <span>AI is thinking...</span>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-        <form
-          onSubmit={handleSubmit}
-          className="mt-auto relative"
-        >
-          <Textarea
-            className="w-full text-lg"
-            placeholder="Say something"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isLoading}
-          />
-          <Button
-            type="submit"
-            size="icon"
-            disabled={!input || isLoading}
-            className="absolute top-1/2 transform -translate-y-1/2 right-4 rounded-full"
+            )}
+            {messages.map((message) => (
+              <Message key={message.id} message={message} />
+            ))}
+            {status === 'submitted' && (
+              <div className="flex items-center gap-2 p-6 text-muted-foreground">
+                <Loader2 className="animate-spin" size={16} />
+                <span>AI is thinking...</span>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+          <form
+            onSubmit={handleSubmit}
+            className="mt-auto relative"
           >
-            {isLoading ? <Loader2 className="animate-spin" size={24} /> : <Send size={24} />}
-          </Button>
-        </form>
+            <Textarea
+              className="w-full text-lg"
+              placeholder="Say something"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isLoading}
+            />
+            <Button
+              type="submit"
+              size="icon"
+              disabled={!input || isLoading}
+              className="absolute top-1/2 transform -translate-y-1/2 right-4 rounded-full"
+            >
+              {isLoading ? <Loader2 className="animate-spin" size={24} /> : <Send size={24} />}
+            </Button>
+          </form>
+        </div>
       </div>
     </main>
   );
