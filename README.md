@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Chatbot
 
-## Getting Started
+A production-ready Next.js 15 chatbot with AI streaming, Google authentication, and persistent conversation history.
 
-First, run the development server:
+## ✨ Features
+
+- **AI-Powered Chat** - Streaming responses using Google Gemini 2.5 Flash
+- **Google Sign-In** - Secure OAuth authentication via Supabase
+- **Conversation History** - All chats saved to PostgreSQL database
+- **Real-time Persistence** - Messages auto-save as you chat
+- **Modern UI** - Built with shadcn/ui and Tailwind CSS
+- **Responsive Design** - Works on all screen sizes
+- **Markdown Support** - Code syntax highlighting included
+- **Multiple Conversations** - Create and switch between chats
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ and pnpm
+- Supabase account (free tier works)
+- Google Cloud Console access (for OAuth)
+
+### 1. Clone & Install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <your-repo-url>
+cd chatbot
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Copy `.env.example` to `.env` and fill in your credentials:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cp .env.example .env
+```
 
-## Learn More
+Required variables:
+```env
+GOOGLE_GENERATIVE_AI_API_KEY=your-gemini-api-key
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 3. Supabase Setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Follow the detailed guide in [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Create Supabase project
+2. Run database migration (`supabase/migrations/001_initial_schema.sql`)
+3. Enable Google OAuth provider
+4. Add Google OAuth credentials
 
-## Deploy on Vercel
+### 4. Run Locally
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3000](http://localhost:3000) - you'll be redirected to login.
+
+## 🛠️ Tech Stack
+
+- **Framework:** Next.js 15 (App Router + Turbopack)
+- **AI:** Vercel AI SDK v5 + Google Gemini
+- **Database:** Supabase (PostgreSQL)
+- **Auth:** Supabase Auth (Google OAuth)
+- **UI:** shadcn/ui + Tailwind CSS v4
+- **Language:** TypeScript
+
+## 📁 Project Structure
+
+```
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── chat/          # AI streaming endpoint
+│   │   │   ├── conversations/ # CRUD endpoints
+│   │   │   └── auth/          # Sign-out
+│   │   ├── components/        # UI components
+│   │   ├── login/             # Login page
+│   │   └── page.tsx           # Main chat interface
+│   ├── lib/
+│   │   └── supabase/          # Supabase clients
+│   └── components/ui/         # shadcn components
+├── supabase/
+│   └── migrations/            # Database schema
+└── middleware.ts              # Auth protection
+```
+
+## 🔒 Security
+
+- Row Level Security (RLS) enabled on all tables
+- Users can only access their own conversations
+- Protected routes via Next.js middleware
+- OAuth tokens handled securely by Supabase
+
+## 📝 License
+
+MIT
+
+## 🙏 Acknowledgments
+
+Built with [Next.js](https://nextjs.org), [Vercel AI SDK](https://sdk.vercel.ai), and [Supabase](https://supabase.com).
