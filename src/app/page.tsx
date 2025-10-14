@@ -141,7 +141,11 @@ export default function Home() {
   }
 
   if (!user) {
-    return null; // Or loading spinner
+    return (
+      <div className="fixed h-full w-full bg-muted flex items-center justify-center">
+        <Loader2 className="animate-spin" size={48} />
+      </div>
+    );
   }
 
   return (
