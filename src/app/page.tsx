@@ -18,12 +18,18 @@ export default function Home() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const conversationIdRef = useRef<string | null>(null);
   const supabase = createClient();
+  
+  // Keep ref in sync with state
+  useEffect(() => {
+    conversationIdRef.current = conversationId;
+  }, [conversationId]);
   
   const { messages, sendMessage, status, setMessages } = useChat({
     transport: new DefaultChatTransport({ 
       api: '/api/chat',
-      body: { conversationId }
+      body: () => ({ conversationId: conversationIdRef.current })
     }),
   });
 
@@ -44,21 +50,29 @@ export default function Home() {
   }, [messages]);
 
   const handleNewChat = async () => {
-    // Create new conversation
     const res = await fetch('/api/conversations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: 'New Chat' })
     });
     const { conversation } = await res.json();
+    
+    // Update ref immediately
+    conversationIdRef.current = conversation.id;
+    
+    // Update state
     setConversationId(conversation.id);
     setMessages([]);
     setInput("");
   };
 
   const handleConversationSelect = async (id: string) => {
+    // Update ref immediately
+    conversationIdRef.current = id;
+    
+    // Update state
     setConversationId(id);
-    setSidebarOpen(false); // Close sidebar on mobile after selection
+    setSidebarOpen(false);
     
     // Load messages for this conversation
     const res = await fetch(`/api/conversations/${id}/messages`);
@@ -86,6 +100,11 @@ export default function Home() {
         body: JSON.stringify({ title: input.slice(0, 50) })
       });
       const { conversation } = await res.json();
+      
+      // Update ref immediately (synchronous)
+      conversationIdRef.current = conversation.id;
+      
+      // Update state (asynchronous)
       setConversationId(conversation.id);
     }
     
