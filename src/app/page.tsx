@@ -16,7 +16,8 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [conversationTitle, setConversationTitle] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const conversationIdRef = useRef<string | null>(null);
   const supabase = createClient();
@@ -49,6 +50,15 @@ export default function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Update page title when conversation changes
+  useEffect(() => {
+    if (conversationTitle) {
+      document.title = `${conversationTitle} | Chatbot`;
+    } else {
+      document.title = 'Chatbot';
+    }
+  }, [conversationTitle]);
+
   const handleNewChat = async () => {
     const res = await fetch('/api/conversations', {
       method: 'POST',
@@ -62,6 +72,7 @@ export default function Home() {
     
     // Update state
     setConversationId(conversation.id);
+    setConversationTitle('New Chat');
     setMessages([]);
     setInput("");
   };
@@ -72,14 +83,22 @@ export default function Home() {
     
     // Update state
     setConversationId(id);
-    setSidebarOpen(false);
     
-    // Load messages for this conversation
-    const res = await fetch(`/api/conversations/${id}/messages`);
-    const data = await res.json();
+    // Load conversation details and messages
+    const [convRes, messagesRes] = await Promise.all([
+      fetch(`/api/conversations`),
+      fetch(`/api/conversations/${id}/messages`)
+    ]);
+    
+    const convData = await convRes.json();
+    const messagesData = await messagesRes.json();
+    
+    // Find and set the conversation title
+    const conversation = convData.conversations?.find((c: any) => c.id === id);
+    setConversationTitle(conversation?.title || 'Chat');
     
     // Convert database messages to UI messages format
-    const uiMessages = data.messages.map((msg: any) => ({
+    const uiMessages = messagesData.messages.map((msg: any) => ({
       id: msg.id,
       role: msg.role,
       parts: [{ type: 'text', text: msg.content }],
@@ -94,10 +113,11 @@ export default function Home() {
     
     // Create conversation if first message
     if (!conversationId) {
+      const title = input.slice(0, 50);
       const res = await fetch('/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: input.slice(0, 50) })
+        body: JSON.stringify({ title })
       });
       const { conversation } = await res.json();
       
@@ -106,6 +126,7 @@ export default function Home() {
       
       // Update state (asynchronous)
       setConversationId(conversation.id);
+      setConversationTitle(title);
     }
     
     sendMessage({ text: input });
@@ -125,7 +146,12 @@ export default function Home() {
 
   return (
     <main className="fixed h-full w-full bg-muted flex flex-col">
-      <Header user={user} onNewChat={handleNewChat} />
+      <Header 
+        user={user} 
+        onNewChat={handleNewChat}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+      />
       <div className="flex flex-1 overflow-hidden">
         <ConversationSidebar
           currentConversationId={conversationId}

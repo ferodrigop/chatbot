@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { LogOut, MessageSquare, Plus } from "lucide-react"
+import { LogOut, MessageSquare, Plus, PanelLeftClose, PanelLeft } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import type { User } from "@supabase/supabase-js"
@@ -9,9 +9,11 @@ import type { User } from "@supabase/supabase-js"
 interface HeaderProps {
   user: User
   onNewChat: () => void
+  sidebarOpen: boolean
+  onToggleSidebar: () => void
 }
 
-export default function Header({ user, onNewChat }: HeaderProps) {
+export default function Header({ user, onNewChat, sidebarOpen, onToggleSidebar }: HeaderProps) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -23,8 +25,16 @@ export default function Header({ user, onNewChat }: HeaderProps) {
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto max-w-4xl flex items-center justify-between h-16 px-4">
+      <div className="container mx-auto max-w-full flex items-center justify-between h-16 px-4">
         <div className="flex items-center gap-2">
+          <Button 
+            onClick={onToggleSidebar} 
+            variant="ghost" 
+            size="icon"
+            title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+          >
+            {sidebarOpen ? <PanelLeftClose size={20} /> : <PanelLeft size={20} />}
+          </Button>
           <MessageSquare className="text-primary" />
           <h1 className="font-semibold text-lg">AI Chat</h1>
         </div>

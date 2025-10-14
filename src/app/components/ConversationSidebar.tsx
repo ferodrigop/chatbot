@@ -70,23 +70,17 @@ export default function ConversationSidebar({
 
   return (
     <>
-      {/* Toggle button for mobile */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onToggle}
-        className="fixed top-20 left-4 z-50 lg:hidden"
-      >
-        {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-      </Button>
-
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed lg:sticky top-16 left-0 h-[calc(100vh-4rem)] bg-background border-r transition-transform duration-300 z-40",
-          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
-          "w-72"
+          "sticky top-16 left-0 h-[calc(100vh-4rem)] bg-background border-r transition-all duration-300 z-40",
+          isOpen ? "w-72" : "w-0",
+          !isOpen && "border-r-0"
         )}
+        style={{ 
+          overflow: isOpen ? 'visible' : 'hidden',
+          flexShrink: 0
+        }}
       >
         <div className="flex flex-col h-full">
           {/* New Chat Button */}
@@ -134,14 +128,6 @@ export default function ConversationSidebar({
           </ScrollArea>
         </div>
       </div>
-
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={onToggle}
-        />
-      )}
     </>
   )
 }
