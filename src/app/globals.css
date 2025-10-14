@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -116,7 +117,24 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Syntax highlighting for code blocks */
+@import "highlight.js/styles/github-dark.css";
+
+/* Custom markdown styling */
+.prose code {
+  @apply bg-muted px-1 py-0.5 rounded text-sm;
+}
+
+.prose pre {
+  @apply bg-card border border-border rounded-lg my-4;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0;
 }
