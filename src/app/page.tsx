@@ -5,16 +5,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2 } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Message from "./components/Messages";
 
 export default function Home() {
   const [input, setInput] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
   });
 
   const isLoading = status !== 'ready';
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +49,7 @@ export default function Home() {
               <span>AI is thinking...</span>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
         <form
           onSubmit={handleSubmit}
