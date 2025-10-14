@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { useState } from "react";
@@ -10,13 +10,15 @@ import Message from "./components/Messages";
 
 export default function Home() {
   const [input, setInput] = useState("");
-  const { messages, sendMessage } = useChat({
+  const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
   });
 
+  const isLoading = status !== 'ready';
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
     sendMessage({ text: input });
     setInput("");
   };
@@ -30,11 +32,17 @@ export default function Home() {
 
   return (
     <main className="fixed h-full w-full bg-muted">
-      <div className="container h-full w-full flex flex-col py-8">
+      <div className="container mx-auto h-full max-w-4xl flex flex-col py-8">
         <div className="flex-1 overflow-y-auto">
           {messages.map((message) => (
             <Message key={message.id} message={message} />
           ))}
+          {status === 'submitted' && (
+            <div className="flex items-center gap-2 p-6 text-muted-foreground">
+              <Loader2 className="animate-spin" size={16} />
+              <span>AI is thinking...</span>
+            </div>
+          )}
         </div>
         <form
           onSubmit={handleSubmit}
@@ -46,14 +54,15 @@ export default function Home() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            disabled={isLoading}
           />
           <Button
             type="submit"
             size="icon"
-            disabled={!input}
+            disabled={!input || isLoading}
             className="absolute top-1/2 transform -translate-y-1/2 right-4 rounded-full"
           >
-            <Send size={24} />
+            {isLoading ? <Loader2 className="animate-spin" size={24} /> : <Send size={24} />}
           </Button>
         </form>
       </div>

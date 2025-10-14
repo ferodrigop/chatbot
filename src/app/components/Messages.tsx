@@ -13,12 +13,12 @@ export default function Message({ message }: { message: UIMessage }) {
   
   if (role === "assistant") {
     return (
-      <div className="flex flex-col gap-3 p-6 whitespace-pre-wrap">
+      <div className="flex flex-col gap-3 mb-4 whitespace-pre-wrap">
         <div className="flex items-center gap-2">
           <Bot />
-          Assistant:
+          <span className="font-semibold">Assistant:</span>
         </div>
-        <div>{textContent}</div>
+        <div className="pl-8">{textContent}</div>
       </div>
     );
   }
