@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { MessageSquare, Lock, CheckCircle2 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-export default function LoginPage() {
+function LoginContent() {
   const supabase = createClient()
   const searchParams = useSearchParams()
   const [accessCode, setAccessCode] = useState('')
@@ -144,5 +144,21 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="fixed h-full w-full bg-muted flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="py-10 text-center">
+            <div className="animate-pulse">Loading...</div>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   )
 }
