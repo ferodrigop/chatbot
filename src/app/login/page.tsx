@@ -5,14 +5,25 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { MessageSquare, Lock, CheckCircle2 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 export default function LoginPage() {
   const supabase = createClient()
+  const searchParams = useSearchParams()
   const [accessCode, setAccessCode] = useState('')
   const [isCodeValid, setIsCodeValid] = useState(false)
   const [error, setError] = useState('')
   const [isValidating, setIsValidating] = useState(false)
+  
+  // Check for error in URL (from OAuth callback)
+  useEffect(() => {
+    const errorParam = searchParams.get('error')
+    if (errorParam === 'unauthorized') {
+      setError('Session expired or invalid. Please enter the access code again.')
+      setIsCodeValid(false)
+    }
+  }, [searchParams])
 
   const handleAccessCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

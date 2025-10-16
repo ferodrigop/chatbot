@@ -12,6 +12,22 @@ import ConversationSidebar from "./components/ConversationSidebar";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
+interface Conversation {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+}
+
+interface DatabaseMessage {
+  id: string;
+  role: string;
+  content: string;
+  conversation_id: string;
+  created_at: string;
+}
+
 export default function Home() {
   const [input, setInput] = useState("");
   const [user, setUser] = useState<User | null>(null);
@@ -94,11 +110,11 @@ export default function Home() {
     const messagesData = await messagesRes.json();
     
     // Find and set the conversation title
-    const conversation = convData.conversations?.find((c: any) => c.id === id);
+    const conversation = convData.conversations?.find((c: Conversation) => c.id === id);
     setConversationTitle(conversation?.title || 'Chat');
     
     // Convert database messages to UI messages format
-    const uiMessages = messagesData.messages.map((msg: any) => ({
+    const uiMessages = messagesData.messages.map((msg: DatabaseMessage) => ({
       id: msg.id,
       role: msg.role,
       parts: [{ type: 'text', text: msg.content }],
@@ -136,7 +152,8 @@ export default function Home() {
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e as any);
+      const formEvent = new Event('submit', { bubbles: true, cancelable: true }) as unknown as React.FormEvent;
+      handleSubmit(formEvent);
     }
   }
 
