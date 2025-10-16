@@ -1,19 +1,18 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { LogOut, MessageSquare, Plus, PanelLeftClose, PanelLeft } from "lucide-react"
+import { LogOut, MessageSquare, PanelLeftClose, PanelLeft } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import type { User } from "@supabase/supabase-js"
 
 interface HeaderProps {
   user: User
-  onNewChat: () => void
   sidebarOpen: boolean
   onToggleSidebar: () => void
 }
 
-export default function Header({ user, onNewChat, sidebarOpen, onToggleSidebar }: HeaderProps) {
+export default function Header({ user, sidebarOpen, onToggleSidebar }: HeaderProps) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -40,10 +39,6 @@ export default function Header({ user, onNewChat, sidebarOpen, onToggleSidebar }
         </div>
         
         <div className="flex items-center gap-2">
-          <Button onClick={onNewChat} variant="outline" size="sm">
-            <Plus size={16} className="mr-2" />
-            New Chat
-          </Button>
           <div className="text-sm text-muted-foreground hidden sm:block">
             {user.email}
           </div>

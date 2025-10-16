@@ -160,7 +160,6 @@ export default function Home() {
     <main className="fixed h-full w-full bg-muted flex flex-col">
       <Header 
         user={user} 
-        onNewChat={handleNewChat}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
       />
