@@ -75,20 +75,11 @@ export default function Home() {
     }
   }, [conversationTitle]);
 
-  const handleNewChat = async () => {
-    const res = await fetch('/api/conversations', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: 'New Chat' })
-    });
-    const { conversation } = await res.json();
-    
-    // Update ref immediately
-    conversationIdRef.current = conversation.id;
-    
-    // Update state
-    setConversationId(conversation.id);
-    setConversationTitle('New Chat');
+  const handleNewChat = () => {
+    // Just clear the UI state - conversation will be created when first message is sent
+    conversationIdRef.current = null;
+    setConversationId(null);
+    setConversationTitle(null);
     setMessages([]);
     setInput("");
   };
