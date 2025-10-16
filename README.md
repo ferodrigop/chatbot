@@ -6,6 +6,7 @@ A production-ready Next.js 15 chatbot with AI streaming, Google authentication, 
 
 - **AI-Powered Chat** - Streaming responses using Google Gemini 2.5 Flash
 - **Google Sign-In** - Secure OAuth authentication via Supabase
+- **Access Code Protection** - Prevent unauthorized signups with a secret code
 - **Conversation History** - All chats saved to PostgreSQL database
 - **Real-time Persistence** - Messages auto-save as you chat
 - **Modern UI** - Built with shadcn/ui and Tailwind CSS
@@ -42,7 +43,10 @@ Required variables:
 GOOGLE_GENERATIVE_AI_API_KEY=your-gemini-api-key
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+ACCESS_CODE=your-secret-access-code
 ```
+
+**Security Note:** Set a strong `ACCESS_CODE` to prevent unauthorized users from signing up and consuming your Supabase storage. This is validated server-side and never exposed to the browser. Only users with this code can proceed to Google OAuth sign-in.
 
 ### 3. Supabase Setup
 
@@ -92,6 +96,9 @@ Open [http://localhost:3000](http://localhost:3000) - you'll be redirected to lo
 
 ## 🔒 Security
 
+- **Server-Side Access Code Validation** - Validates access code on the server, never exposed to browser
+- **HttpOnly Cookie Tokens** - Temporary validation tokens stored securely
+- **OAuth Callback Protection** - Prevents bypassing access code via direct OAuth URLs
 - Row Level Security (RLS) enabled on all tables
 - Users can only access their own conversations
 - Protected routes via Next.js middleware
